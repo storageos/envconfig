@@ -267,7 +267,7 @@ func processField(value string, field reflect.Value) error {
 		field.Set(sl)
 	case reflect.Map:
 		mp := reflect.MakeMap(typ)
-		if len(strings.TrimSpace(value)) != 0 {
+		if len(stripSpaceAndExtendedChars(value)) != 0 {
 			pairs := strings.Split(value, ",")
 			for _, pair := range pairs {
 				kvpair := strings.Split(pair, "=")
@@ -291,6 +291,17 @@ func processField(value string, field reflect.Value) error {
 	}
 
 	return nil
+}
+
+func stripSpaceAndExtendedChars(s string) string {
+	filter := func(r rune) rune {
+		if r >= 32 && r <= 127 {
+			return r
+		}
+		return -1
+	}
+
+	return strings.Map(filter, strings.TrimSpace(s))
 }
 
 func interfaceFrom(field reflect.Value, fn func(interface{}, *bool)) {
